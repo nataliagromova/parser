@@ -5,8 +5,8 @@ import csv
 
 
 def parselogs(root, files, pl, result):
-    global os_full_name
     for filename in files:
+        full_names_os = {'win': 'Windows', 'lin': 'Linux', 'mac': 'Macosx'}
         path_to_file = root + '/' + filename
         if "txt" in filename and filename.replace(r".txt", ".end") in files:
             with open(path_to_file, 'r') as file:
@@ -15,24 +15,17 @@ def parselogs(root, files, pl, result):
                     num_of_tests = re.search(r".Number of tests\s+:\s+(\d+)", content).group(1)
                     num_of_success = re.search(r".Successes\s+:\s+(\d+)", content).group(1)
                     percentage = f'{float(num_of_success) / float(num_of_tests):.2%}'
-                except Exception:
+                except AttributeError:
                     percentage = 'aborted'
-        elif "txt" in filename and not filename.replace(r".txt",
-                                                        ".end") in files or "end" in filename and not filename.replace(
-            r".end", ".txt"):
+        elif "txt" in filename and not filename.replace(r".txt", ".end") in files or \
+                "end" in filename and not filename.replace(r".end", ".txt"):
             percentage = 'n/a'
         else:
             continue
         optimization = re.findall(r'_([^._]+)\.', filename)[-1]
         domain = os.path.basename(os.path.dirname(path_to_file))
         architecture = os.path.basename(os.path.dirname(os.path.dirname(path_to_file)))
-        if pl == 'win':
-            os_full_name = 'Windows'
-        elif pl == 'mac':
-            os_full_name = 'Macosx'
-        elif pl == 'lin':
-            os_full_name = 'Linux'
-        result.append([os_full_name, architecture, domain, optimization, percentage])
+        result.append([full_names_os.get(pl), architecture, domain, optimization, percentage])
 
 
 def findlogs(path_to_logs, platform):
@@ -45,10 +38,11 @@ def findlogs(path_to_logs, platform):
     return result
 
 
-def main(args):
-    path_to_logs = args.dir_logs
-    platform = args.platform
+def main(arguments):
+    path_to_logs = arguments.dir_logs
+    platform = arguments.platform
     if os.path.isdir(path_to_logs):
+        print("Perform calculations...")
         result = findlogs(path_to_logs, platform)
     else:
         raise IsADirectoryError
