@@ -45,7 +45,8 @@ def main(arguments):
         print("Perform calculations...")
         result = findlogs(path_to_logs, platform)
     else:
-        raise IsADirectoryError
+        print("Directory " + path_to_logs + " doesn't exist!")
+        return
     with open("result.csv", "w") as output:
         print("See statistics in result.csv")
         csv_out = csv.writer(output)
